@@ -54,7 +54,7 @@
 
 Для создаения правил нажимаем на кнопку `Add Rule` и затем в появившемся визарде выбираем пункт `Send Claims using Custom Rule`. Затем нажимаем `Next` и вводим имя правила (по желанию) и текст правила (необходимо вставлять точный текст).
 
-<img src="images/Create_rule_3.jpg" width="900">
+<img src="images/Create_rule_3.jpg" width="800">
 
 Создаем два вспомогательных правила для добавления двух типов утверждений.
 
@@ -67,7 +67,7 @@ c:[Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccou
  => add(store = "Active Directory", types = ("objectGUID"), query = ";objectGUID;{0}", param = c.Value);
 ```
 
-![](images/Create_rule_4.jpg)
+<img src="images/Create_rule_4.jpg" width="500">
 
 - Правило с именем `Add origObjectGUID` с содержимым:
 
