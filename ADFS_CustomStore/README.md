@@ -54,7 +54,7 @@
 
 Для создаения правил нажимаем на кнопку `Add Rule` и затем в появившемся визарде выбираем пункт `Send Claims using Custom Rule`. Затем нажимаем `Next` и вводим имя правила (по желанию) и текст правила (необходимо вставлять точный текст).
 
-<img src="images/Create_rule_3.jpg" width="500">
+<img src="images/Create_rule_2.jpg" width="500">
 
 <img src="images/Create_rule_3.jpg" width="700">
 
@@ -91,11 +91,11 @@ c:[Type == "objectGUID"]
 
 - нажимаем на кнопку `Add Rule` и затем в появившемся визарде выбираем пункт `Transform an Incomming Claim`. Нажимаем `Next`.
 
-<img src="images/Create_rule_7.jpg" width="800">
+<img src="images/Create_rule_7.jpg" width="700">
 
 - вводим имя правила, например `Issue NameID`, затем в поле `Incomming Claim Type` _**с клавиатуры печатаем**_ (в списке этого значения нет) `origObjectGUID`, в поле `Outgoing Claim Type` выбираем из списка `Name ID` (_**помним о зависимости типа утверждения от регистра**_). Больше ничего не меняем в данном окне и нажимаем кнопку `Finish`.
 
-<img src="images/Create_rule_8.jpg" width="800">
+<img src="images/Create_rule_8.jpg" width="700">
 
 Можно проверить, что правило было создано правильно с помощью кнопки `Edit Rule` для этого правила и в появившемся окне просмотра кода правила с помощью кнопки `View Rule Language`. Оно должно быть таким:
 
