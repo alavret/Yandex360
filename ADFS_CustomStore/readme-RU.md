@@ -10,7 +10,7 @@
 <img src="images/ObjectGUID_in_AD.jpg" width="500">
 
 Пример SAMLResponse, когда значение атрибута ObjectGUID передается ADFS сервером, как есть:
-![SAMLResponse without transformation]()
+<img src="images/SAML_Without_Transform.jpg" width="500">
 
 Пример SAMLResponse, когда значение атрибута ObjectGUID передается ADFS сервером с использованием этой библиотеки:
 ![SAMLResponse with transformation]()
