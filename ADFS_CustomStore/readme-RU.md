@@ -93,7 +93,9 @@ c:[Type == "objectGUID"]
 c:[Type == "origObjectGUID"]
  => issue(Type = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", Issuer = c.Issuer, OriginalIssuer = c.OriginalIssuer, Value = c.Value, ValueType = c.ValueType, Properties["http://schemas.xmlsoap.org/ws/2005/05/identity/claimproperties/format"] = "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified");
 ```
-В результате выполненных операций вы получите SAMLResponse, показанный в начале статьи.
+В результате выполненных операций вы должны иметь три дополнительных правила и при запросе ADFS получите SAMLResponse, показанный в начале статьи.
+
+<img src="images/Create_rule_9.jpg" width="600">
 
 
 
