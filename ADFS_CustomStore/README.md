@@ -54,7 +54,9 @@
 
 Для создаения правил нажимаем на кнопку `Add Rule` и затем в появившемся визарде выбираем пункт `Send Claims using Custom Rule`. Затем нажимаем `Next` и вводим имя правила (по желанию) и текст правила (необходимо вставлять точный текст).
 
-<img src="images/Create_rule_3.jpg" width="800">
+<img src="images/Create_rule_3.jpg" width="500">
+
+<img src="images/Create_rule_3.jpg" width="700">
 
 Создаем два вспомогательных правила для добавления двух типов утверждений.
 
@@ -67,7 +69,7 @@ c:[Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccou
  => add(store = "Active Directory", types = ("objectGUID"), query = ";objectGUID;{0}", param = c.Value);
 ```
 
-<img src="images/Create_rule_4.jpg" width="700">
+<img src="images/Create_rule_4.jpg" width="600">
 
 - Правило с именем `Add origObjectGUID` с содержимым:
 
@@ -78,7 +80,7 @@ c:[Type == "objectGUID"]
  => add(store = "OriginalObjectGIUD", types = ("origObjectGUID"), query = "convertToObjectGUID", param = c.Value);
 ```
 
-<img src="images/Create_rule_5.jpg" width="700">
+<img src="images/Create_rule_5.jpg" width="600">
 
 Таким образом, после выполнения этого шага у нас появится ёще одно утверждение с типом `types = ("origObjectGUID")`, которое будет содерждать оригинальное значение ObjectGUID пользователя из нашей Active Directory.
 
