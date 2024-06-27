@@ -67,7 +67,7 @@ c:[Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccou
  => add(store = "Active Directory", types = ("objectGUID"), query = ";objectGUID;{0}", param = c.Value);
 ```
 
-<img src="images/Create_rule_4.jpg" width="500">
+<img src="images/Create_rule_4.jpg" width="700">
 
 - Правило с именем `Add origObjectGUID` с содержимым:
 
@@ -78,11 +78,11 @@ c:[Type == "objectGUID"]
  => add(store = "OriginalObjectGIUD", types = ("origObjectGUID"), query = "convertToObjectGUID", param = c.Value);
 ```
 
-![](images/Create_rule_5.jpg)
+<img src="images/Create_rule_5.jpg" width="700">
 
 Таким образом, после выполнения этого шага у нас появится ёще одно утверждение с типом `types = ("origObjectGUID")`, которое будет содерждать оригинальное значение ObjectGUID пользователя из нашей Active Directory.
 
-![](images/Create_rule_6.jpg)
+<img src="images/Create_rule_5.jpg" width="500">
 
 Теперь мы можем создать третье правило (ниже по списку после предыдущих двух), которое будет выпускать нужное нам утверждение, используя в качестве значения содержимое утверждения с типом `types = ("origObjectGUID")`.  
 Например, если мы хотим выпустить утверждение NameID с этим значением, мы можем сделать следующим образом:
