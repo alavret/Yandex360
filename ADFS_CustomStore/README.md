@@ -25,9 +25,11 @@
 2.  Скачайте скомпилированную DLL из папки `/dll` ([download link](https://raw.githubusercontent.com/alavret/Yandex360/main/ADFS_CustomStore/dll/StringProcessingAttributeStore.dll)) и поместите в корневой каталог сервера ADFS. Для ADFS версии 2016 и выше этот каталог находится по адресу `c:\windows\ADFS\`
 3.  Откройте консоль ADFS сервера и перейдите в раздел `Services -> Attribute Stores` и в панели `Actions` нажмите на `Add Custom Attribute Store`:
 
- <img src="images/adfs1.jpg" width="500">
+ <img src="images/adfs1.jpg" width="800">
 
-1.  Введите название хранилища, по которому вы будете на него ссылаться при написании правил, например, `OriginalObjectGIUD`. Во втором поле укажете информацию, откуда брать код для преобразования в формате `Namespace.ClassName,DllName` (_**обратите внимание, что первым разделителем идёт точка, вторым запятая**_). В случае данной, скомпилированной dll строка будет такой (в этой строке ничего не менять) - `StringProcessingNamespace.StringProcessingClass,StringProcessingAttributeStore`.![](images/Add_Attribute_Store.jpg)
+1.  Введите название хранилища, по которому вы будете на него ссылаться при написании правил, например, `OriginalObjectGIUD`. Во втором поле укажете информацию, откуда брать код для преобразования в формате `Namespace.ClassName,DllName` (_**обратите внимание, что первым разделителем идёт точка, вторым запятая**_). В случае данной, скомпилированной dll строка будет такой (в этой строке ничего не менять) - `StringProcessingNamespace.StringProcessingClass,StringProcessingAttributeStore`.
+  
+<img src="images/Add_Attribute_Store.jpg" width="500">
 
 > \[!WARNING\]  
 > Иногда при добавлении/удалении Custom Attribute Store возникает ошибка. Для продолжения работы перейдите в корень консоли управления ADFS (самый верхний/первый элемент с именем "AD FS") и выберите пункт меню "Action -> Refresh", после чего повторите попытку добавления/удаления.
