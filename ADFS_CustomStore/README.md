@@ -106,4 +106,4 @@ c:[Type == "origObjectGUID"]
 
 В результате выполненных операций вы должны иметь три дополнительных правила и при запросе ADFS получите SAMLResponse, показанный в начале статьи.
 
-![](images/Create_rule_9.jpg)
+<img src="images/Create_rule_9.jpg" width="500">
