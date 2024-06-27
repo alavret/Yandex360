@@ -22,7 +22,7 @@
 1. DLL была скомпилирована для .Net Framework версии 4.8. Проверьте, что на вашем ADFS сервере установлена данная версия, иначе работоспосбность решения не гарантируется.
 2. Скачайте скомпилированную DLL из папки `/dll` и поместите в корневой каталог сервера ADFS. Для ADFS версии 2016 и выше этот каталог находится по адресу `c:\windows\ADFS\`
 3. Откройте консоль ADFS сервера и перейдите в раздел `Services -> Attribute Stores` и в панели `Actions` нажмите на `Add Custom Attribute Store`:
-<img src="images/adfs1.jpg" width="500">
+<img src="images/adfs1.jpg" width="900">
 4. Введите название хранилища, по которому вы будете на него ссылаться при написании правил, например, `OriginalObjectGIUD`. Во втором поле укажете информацию, откуда брать код для преобразования в формате `Namespace.ClassName,DllName` (***обратите внимание, что первым разделителем идёт точка, вторым запятая***). В случае данной, скомпилированной dll строка будет такой (в этой строке ничего не менять) - `StringProcessingNamespace.StringProcessingClass,StringProcessingAttributeStore`.
 <img src="images/Add_Attribute_Store.jpg" width="500">
 > [!WARNING]
