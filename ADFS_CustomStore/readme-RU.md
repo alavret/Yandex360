@@ -7,7 +7,7 @@
 
 Как атрибут ObjectGUID отображается в Active Directory:
 
-<img src="images/ObjectGUID_in_AD.jpg" width="600">
+<img src="images/ObjectGUID_in_AD.jpg" width="500">
 
 Пример SAMLResponse, когда значение атрибута ObjectGUID передается ADFS сервером, как есть:
 ![SAMLResponse without transformation]()
