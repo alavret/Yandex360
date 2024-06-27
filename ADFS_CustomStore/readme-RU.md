@@ -50,8 +50,10 @@
 > Обратите внимание, что синтаксис правил ADFS чувствителен к регистру. Особенно это может проявляться при написании типов утверждений, в которых находятся данные для трасформаций. Например, строки с типом `types = ("objectGUID")` и `types = ("ОbjectGUID")` ссылаются на **два** разных утверждения. При отсутствии значения запрошенного утверждения в выводе SAMLResponse проверяйте регистр букв в правилах! 
 
 Для создаения правил нажимаем на кнопку `Add Rule` и затем в появившемся визарде выбираем пункт `Send Claims using Custom Rule`. Затем нажимаем `Next` и вводим имя правила (по желанию) и текст правила (необходимо вставлять точный текст).
+
 <img src="images/Create_rule_2.jpg" width="500">
-<img src="images/Create_rule_3.jpg" width="500">
+
+<img src="images/Create_rule_3.jpg" width="600">
 
 Создаем два вспомогательных правила для добавления двух типов утверждений.
 - Правило с именем `Add ObjectGUID` с содержимым:
@@ -59,13 +61,18 @@
 c:[Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname", Issuer == "AD AUTHORITY"]
  => add(store = "Active Directory", types = ("objectGUID"), query = ";objectGUID;{0}", param = c.Value);
  ```
+
+<img src="images/Create_rule_4.jpg" width="600">
+
 >Это правило ищет в каталоге LDAP значение атрибута `ObjectGUID` для пользователя, который выполнил аутентификацию через ADFS сервер. Значение этого атрибута в формате Base64 строки добавлется в список существующих утверждений в виде нового типа утверждения - `types = ("objectGUID")`.
 - Правило с именем `Add origObjectGUID` с содержимым:
 ```
 c:[Type == "objectGUID"]
  => add(store = "OriginalObjectGIUD", types = ("origObjectGUID"), query = "convertToObjectGUID", param = c.Value);
  ```
->Это правило выполняет трансформацию полученного на предыдущем этапе значения ObjectGUID в формате Base64 в формат строкового представления байтового массива с использованием нашей подключаемой скомпилированной библиотеки (`Custom Attribute Store`). Вызываемая функция - `convertToObjectGUID`. 
+>Это правило выполняет трансформацию полученного на предыдущем этапе значения ObjectGUID в формате Base64 в формат строкового представления байтового массива с использованием нашей подключаемой скомпилированной библиотеки (`Custom Attribute Store`). Вызываемая функция - `convertToObjectGUID`.
+
+<img src="images/Create_rule_5.jpg" width="600">
 
 Таким образом, после выполнения этого шага у нас появится ёще одно утверждение с типом `types = ("origObjectGUID")`, которое будет содерждать оригинальное значение ObjectGUID пользователя из нашей Active Directory.
 
