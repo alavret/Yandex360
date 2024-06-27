@@ -25,7 +25,7 @@
 2.  Скачайте скомпилированную DLL из папки `/dll` ([download link](https://raw.githubusercontent.com/alavret/Yandex360/main/ADFS_CustomStore/dll/StringProcessingAttributeStore.dll)) и поместите в корневой каталог сервера ADFS. Для ADFS версии 2016 и выше этот каталог находится по адресу `c:\windows\ADFS\`
 3.  Откройте консоль ADFS сервера и перейдите в раздел `Services -> Attribute Stores` и в панели `Actions` нажмите на `Add Custom Attribute Store`:
 
-![](images/adfs1.jpg)
+ <img src="images/adfs1.jpg" width="600">
 
 1.  Введите название хранилища, по которому вы будете на него ссылаться при написании правил, например, `OriginalObjectGIUD`. Во втором поле укажете информацию, откуда брать код для преобразования в формате `Namespace.ClassName,DllName` (_**обратите внимание, что первым разделителем идёт точка, вторым запятая**_). В случае данной, скомпилированной dll строка будет такой (в этой строке ничего не менять) - `StringProcessingNamespace.StringProcessingClass,StringProcessingAttributeStore`.![](images/Add_Attribute_Store.jpg)
 
@@ -35,7 +35,7 @@
 > \[!TIP\]  
 > Для проверки успешности добавления Custom Attribute Store обратитесь к системному журналу Event Viewer. Выберите `Application and Services Logs -> ADFS -> Admin` и найдите событие с Event ID = 251.
 
-![](images/check_event_viewer.jpg)
+<img src="images/check_event_viewer.jpg" width="900">
 
 Также с помощью записей в этом логе можно диагностировать ошибки при написании своих собственных функциций преобразования утверждений в ADFS сервере через механизм подключаемых Custom Attribute Store (выполнять отладку кода в библиотеке).
 
