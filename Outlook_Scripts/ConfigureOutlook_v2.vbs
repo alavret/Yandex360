@@ -191,37 +191,39 @@ For Each strSubkey In arrSubKeys
   If oReg.EnumKey(HKEY_CURRENT_USER, strStartSearch & strSubkey & "\Outlook\Profiles", "") = 0 Then 
     oReg.EnumKey HKEY_CURRENT_USER, strStartSearch & strSubkey & "\Outlook\Profiles", arrProfileKeys
     For Each strProfile In arrProfileKeys
+      wscript.echo strStartSearch & strSubkey & "\Outlook\Profiles\" & strProfile & "\9375CFF0413111d3B88A00104B2A6676" 
       oReg.EnumKey HKEY_CURRENT_USER, strStartSearch & strSubkey & "\Outlook\Profiles\" & strProfile & "\9375CFF0413111d3B88A00104B2A6676", arrSubProfileKeys
       For Each strTempKey In arrSubProfileKeys
-        'wscript.echo strTempKey
-        If oReg.EnumKey(HKEY_CURRENT_USER, strTempKey, "") = 0 Then
-          oReg.GetStringValue HKEY_CURRENT_USER, strTempKey, "Account Name", strAccountName
+        strTargetKey = strStartSearch & strSubkey & "\Outlook\Profiles\" & strProfile & "\9375CFF0413111d3B88A00104B2A6676\" & strTempKey
+        wscript.echo strTargetKey
+        If oReg.EnumKey(HKEY_CURRENT_USER, strTargetKey, "") = 0 Then
+          oReg.GetStringValue HKEY_CURRENT_USER, strTargetKey, "Account Name", strAccountName
           'Если значние вида 360.contoso.com меняем на contoso.com
           If Not IsNull(strAccountName) Then
             if InStr(strAccountName, strServiceDomain) > 0 Then
-              wscript.echo "Modifying " & strTempKey & ". ""Account Name"" was " & strAccountName & ", set to " & Replace(strAccountName, strDomainToCut, "")
-              oReg.SetStringValue HKEY_CURRENT_USER, strTempKey, "Account Name", Replace(strAccountName, strDomainToCut, "")
+              wscript.echo "Modifying " & strTargetKey & ". ""Account Name"" was " & strAccountName & ", set to " & Replace(strAccountName, strDomainToCut, "")
+              oReg.SetStringValue HKEY_CURRENT_USER, strTargetKey, "Account Name", Replace(strAccountName, strDomainToCut, "")
             End If
           End If
-          oReg.GetStringValue HKEY_CURRENT_USER, strTempKey, "Email", strMail
+          oReg.GetStringValue HKEY_CURRENT_USER, strTargetKey, "Email", strMail
           'Если значние вида 360.contoso.com меняем на contoso.com
           If Not IsNull(strMail) Then
             if InStr(strMail, strServiceDomain) > 0 Then
-              wscript.echo "Modifying " & strTempKey & ". ""Email"" was " & strAccountName & ", set to " & Replace(strMail, strDomainToCut, "")
-              oReg.SetStringValue HKEY_CURRENT_USER, strTempKey, "Email", Replace(strMail, strDomainToCut, "")
+              wscript.echo "Modifying " & strTargetKey & ". ""Email"" was " & strAccountName & ", set to " & Replace(strMail, strDomainToCut, "")
+              oReg.SetStringValue HKEY_CURRENT_USER, strTargetKey, "Email", Replace(strMail, strDomainToCut, "")
             End If
           End If
-          oReg.GetStringValue HKEY_CURRENT_USER, strTempKey, "Display Name", strDisplayName  
+          oReg.GetStringValue HKEY_CURRENT_USER, strTargetKey, "Display Name", strDisplayName  
           If Not IsNull(strDisplayName) Then      
             intCompare = StrComp(strDisplayName, strNewDisplayName, vbTextCompare)
             'Меняем email на Display Name (если Display Name на русскром, то в консоли в диагностическом выводе может не выводится, т.к. вывод зависит от локали консоли)
             if intCompare <> 0 Then 
-                wscript.echo "Modifying " & strTempKey & ". ""Display Name"" was " & strDisplayName & ", set to " & strNewDisplayName
-                oReg.SetStringValue HKEY_CURRENT_USER, strTempKey, "Display Name",  strNewDisplayName
+                wscript.echo "Modifying " & strTargetKey & ". ""Display Name"" was " & strDisplayName & ", set to " & strNewDisplayName
+                oReg.SetStringValue HKEY_CURRENT_USER, strTargetKey, "Display Name",  strNewDisplayName
             End If
           End If
           'Если профиль настроен на IMAP сервер, запускаем настройку LDAP адресной книги
-          oReg.GetStringValue HKEY_CURRENT_USER, strTempKey, "IMAP Server", strIMAP
+          oReg.GetStringValue HKEY_CURRENT_USER, strTargetKey, "IMAP Server", strIMAP
           if Not IsNull(strIMAP) Then
             SetLdap strStartSearch & strSubkey & "\Outlook\Profiles\" & strProfile & "\",  GetUserUPN()
           End If        
