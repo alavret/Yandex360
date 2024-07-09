@@ -43,7 +43,7 @@ Sub SetLdap (strRegistryFolder, strUserName)
   Set oReg=GetObject( "winmgmts:{impersonationLevel=impersonate}!\\" & strComputer & "\root\default:StdRegProv")
 
   
-  If oReg.EnumKey(HKEY_CURRENT_USER, strRegistryFolder & "\9375CFF0413111d3B88A00104B2A6676\00000003", "") = 0 Then 
+  If oReg.EnumKey(HKEY_CURRENT_USER, strRegistryFolder & "\5cb93b24ff710741b7d83b9cb6317992", "") = 0 Then 
       wscript.echo "LDAP address book for " & strRegistryFolder & " already exist."
       Exit Sub
       Else
@@ -79,6 +79,7 @@ Sub SetLdap (strRegistryFolder, strUserName)
   oReg.SetStringValue HKEY_CURRENT_USER, sKeyPath , "001e6600", LDAPserver
   oReg.SetStringValue HKEY_CURRENT_USER, sKeyPath , "001e6601", LDAPport
   oReg.SetStringValue HKEY_CURRENT_USER, sKeyPath , "001e6603", LDAPsearchbase
+  'Похоже, что строка ниже никак не влияет на работу поиска (как минимум, когда включён режим предосмотра всех записей) 
   oReg.SetStringValue HKEY_CURRENT_USER, sKeyPath , "001e6604", "(&(mail=*)(|(mail=%s*)(|(cn=%s*)(|(sn=%s*)(givenName=%s*)))))"
   oReg.SetStringValue HKEY_CURRENT_USER, sKeyPath , "001e6605", "SMTP"
   oReg.SetStringValue HKEY_CURRENT_USER, sKeyPath , "001e6606", "mail"
