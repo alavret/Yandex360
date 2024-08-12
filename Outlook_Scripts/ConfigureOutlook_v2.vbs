@@ -36,7 +36,7 @@ Function GetUserUPN( )
   GetUserUPN = strUPN
 End Function
 
-'Функция устновки ДВФЗ адресной книги, код из ИНтернета
+'Функция устновки LDAP адресной книги, код из ИНтернета
 Sub SetLdap (strRegistryFolder, strUserName)
   const HKEY_CURRENT_USER = &H80000001
   strComputer = "."
