@@ -15,7 +15,7 @@ LDAPserver = "dc01.contoso.com"
 LDAPport = "389"
 'Стартовая локация для поиска данных в каталоге
 LDAPsearchbase = "ou=Office,dc=contoso,dc=com"
-'адрес установочного файла коннектора
+'адрес установочного файла коннектора Яндекс 360 для Outlook
 strConnectorMSIPath = "\\dc01.contoso.com\Orgfiles\Y360ConnectorSetup_x86.msi"
 
 'Функция получения DisplayName атрибута пользователя из AD
