@@ -21,6 +21,9 @@
 
 ### Использование готовой DLL.
 
+> \[!WARNING\]  
+> Для корректной работы данного сценария необходимо в конфигурационном файле утилиты SCIM (автоматическая синхронизация учётных записей из локальной Active Directory в каталог Яндекс 360) установить параметр `IgnoreUsernameDomain` в True. 
+
 1.  DLL была скомпилирована для .Net Framework версии 4.8. Проверьте, что на вашем ADFS сервере установлена данная версия, иначе работоспосбность решения не гарантируется.
 2.  Скачайте скомпилированную DLL из папки `/dll` ([download link](https://raw.githubusercontent.com/alavret/Yandex360/main/ADFS_CustomStore/dll/StringProcessingAttributeStore.dll)) и поместите в корневой каталог сервера ADFS. Для ADFS версии 2016 и выше этот каталог находится по адресу `c:\windows\ADFS\`
 3.  Откройте консоль ADFS сервера и перейдите в раздел `Services -> Attribute Stores` и в панели `Actions` нажмите на `Add Custom Attribute Store`:
