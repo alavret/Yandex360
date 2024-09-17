@@ -1,9 +1,7 @@
 import os
 import csv
 from datetime import datetime
-
 from dotenv import load_dotenv
-
 from lib.y360_api.api_script import API360
 
 def clear_dep_info_for_users():
@@ -21,6 +19,7 @@ def clear_dep_info_for_users():
     print('Done.')
     return
 
+
 def delete_all_departments():
     # Функцция по удалению департаментов в орге, предварительно должна быть вызвана функция очистки пользователя от признака членства в департаменте
     clear_dep_info_for_users()
@@ -32,6 +31,7 @@ def delete_all_departments():
             break
     print('Done.')
     return
+
 
 def create_dep_from_prepared_list(deps_list, max_levels):
     # Фнункция создания департамента из предварительно подготовленного списка
@@ -64,6 +64,7 @@ def create_dep_from_prepared_list(deps_list, max_levels):
                 #Обновляем информацию в final_list для записанных в 360 департаментов
                 item['360id'] = d['id']
     print('Done')
+
 
 def prepare_deps_list_from_raw_data(raw_data):
     """     Входящий список должен быть в таком формате:
@@ -100,19 +101,17 @@ def prepare_deps_list_from_raw_data(raw_data):
     # Добавление в 360
     return final_list
 
-def prepare_deps_list_from_source_file():
+
+def create_deps_from_scratch_entry():
     answer = input("You selected to DELETE AND CREATE DEPARTMENTS from file. Continue? (Y/n): ")
     if answer.upper() in ["Y", "YES"]:
         # Читаем файл из файла-образца
-        deps_data = read_deps_file()
+        deps_data = read_deps_file('DEPS_FILE_NAME')
         if len(deps_data) == 0:
             return
         
         delete_all_departments()        
         
-        #longest = reduce(lambda x, y: x if len(x['path'].split(';')) > len(y['path'].split(';')) else y, deps_data)
-        #longest = [len(s['path'].split(';')) for s in deps_data]
-
         final_list = prepare_deps_list_from_raw_data(deps_data)
         max_levels = max([len(s['path'].split(';')) for s in deps_data])
         # Добавление в 360
@@ -165,12 +164,13 @@ def read_deps_file(os_env_file_name):
         return data
     else:
         return []
-    
+        
 
 def del_all_deps():
     answer = input("You selected to DELETE ALL DEPARTMENTS. Continue? (Y/n): ")
     if answer.upper() in ["Y", "YES"]:
         delete_all_departments()
+
 
 def delete_selected_deps(deps_list):
     if len(deps_list) == 0:
@@ -179,12 +179,13 @@ def delete_selected_deps(deps_list):
         if item['id'] > 1:
             organization.delete_department_by_id(item['id'])
 
+
 def generate_deleted_deps():
     #Для анализа используется файл DEPS_UNUSED_FILE 
     file_data = read_deps_file('DEPS_UNUSED_FILE')
     if len(file_data) == 0:
         print('There are no departments to delete.')
-        return
+        return []
     api_data = generate_deps_list_from_api()
     deps_to_delete = []
     for file in file_data:
@@ -200,7 +201,8 @@ def generate_deleted_deps():
             deps_to_delete.append({'id':-1,'path':file['path']})
     return deps_to_delete
 
-def delete_selected_deps_check():
+
+def delete_selected_deps_entry():
     deps_to_delete = generate_deleted_deps()
     if len(deps_to_delete) == 0:
         return
@@ -222,6 +224,7 @@ def delete_selected_deps_check():
         delete_selected_deps(deps_to_delete)
     print('Done.')
 
+
 def generate_unique_file_name(name): 
     name_without_ext = '.'.join(name.split('.')[0:-1])
     file_ext = name.split('.')[-1]
@@ -229,6 +232,7 @@ def generate_unique_file_name(name):
     file_var_part  = now.strftime("%Y%m%d_%H%M%S")
     final_file_name = f'{name_without_ext}_{file_var_part}.{file_ext}'
     return final_file_name
+
 
 def generate_deps_list_from_api():
     all_deps_from_api = organization.get_departments_list()
@@ -248,6 +252,7 @@ def generate_deps_list_from_api():
             all_deps.append(element)
     return all_deps
 
+
 def load_dep_info_to_file():
     all_deps = generate_deps_list_from_api()
     write_deps_to_file('DEPS_BACKUP_FILE', all_deps)
@@ -259,13 +264,14 @@ def write_deps_to_file(os_env_file_name, deps_list):
     while os.path.exists(file_name_random):
         file_name_random = generate_unique_file_name(file_name)
 
-    if len(deps_list) == 1:
+    if len(deps_list) == 0:
         print('There are no departments to export! Exit.')
     else:        
         with open(file_name_random, 'w') as file:
             for item in deps_list:
                 file.write(f'{item['id']};{item['path']}\n')
         print(f'Data uploaded to {file_name_random} file.')
+
 
 def generate_unused_deps():
     #Для анализа используется файл DEPS_FILE_NAME (как источник используемых и актуальных департаментов)
@@ -282,15 +288,14 @@ def generate_unused_deps():
                 found = True
                 break
         if not found:
-            if api['id'] > 1:
+            if api['parentId'] > 0:
                 deps_to_delete.append(api)
     return deps_to_delete
 
 
 def export_unused_deps_to_file():
     all_deps = generate_unused_deps()
-    write_deps_to_file('DEPS_UNUSED_FILE', all_deps)
-    
+    write_deps_to_file('DEPS_UNUSED_FILE', all_deps)    
 
 
 def update_deps_from_file():
@@ -310,9 +315,6 @@ def update_deps_from_file():
     max_levels = max([len(s['path'].split(';')) for s in file_data])
     # Добавление в 360
     create_dep_from_prepared_list(final_list,max_levels)
-    #for item in deps_to_delete:
-    #    print(item)
-    
 
 
 def main_menu():
@@ -320,31 +322,31 @@ def main_menu():
     while True:
         print(" ")
         print("Select option:")
-        print("1. Export existing departments to file.")
-        print("2. Delete all departments.")
-        print("3. Create departments from file.")
-        print("4. Update departments from file.")
-        print("5. Export unused departments to file.")
-        print("6. Delete unused departments.")
+        print("1. Delete all departments and create them from file.")
+        print("2. Update departments from file.")
+        print("3. Export existing departments to file.")
+        print("4. Export unused departments to file.")
+        print("5. Delete unused departments.")
+        print("6. Delete all departments.")
         print("0. Exit")
 
         choice = input("Enter your choice (0-6): ")
 
-        if choice == "1":
-            load_dep_info_to_file()
-        elif choice == "2":
-            del_all_deps()
-        elif choice == "3":
-            prepare_deps_list_from_source_file()
-        elif choice == "4":
-            update_deps_from_file()
-        elif choice == "5":
-            export_unused_deps_to_file()        
-        elif choice == "6":
-            delete_selected_deps_check()
-        elif choice == "0":
+        if choice == "0":
             print("Goodbye!")
             break
+        elif choice == "1":
+            create_deps_from_scratch_entry()
+        elif choice == "2":
+            update_deps_from_file()
+        elif choice == "3":
+            load_dep_info_to_file()
+        elif choice == "4":
+            export_unused_deps_to_file()        
+        elif choice == "5":
+            delete_selected_deps_entry()
+        elif choice == "6":
+            del_all_deps()
         else:
             print("Invalid choice. Please try again.")
 
@@ -356,7 +358,7 @@ if __name__ == "__main__":
         load_dotenv(dotenv_path=denv_path,verbose=True, override=True)
     
     organization = API360(os.environ.get('orgId'), os.environ.get('access_token'))
-    deps_file_name = os.environ.get('DEPS_FILE_NAME')
+    
     main_menu()
 
     
