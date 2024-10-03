@@ -16,6 +16,7 @@ if __name__ == "__main__":
 
 
     ldap_host = os.environ.get('LDAP_HOST')
+    ldap_port = os.environ.get('LDAP_PORT')
     ldap_user = os.environ.get('LDAP_USER')
     ldap_password = os.environ.get('LDAP_PASSWORD')
     ldap_filter = os.environ.get('SEARCH_FILTER')
@@ -25,8 +26,8 @@ if __name__ == "__main__":
 
     logger = CycleLogger(file_name=log_file, max_lines=max_lines)
     logger.log('Start')
-
-    server = Server(ldap_host, port=3268, get_info=ALL) 
+  
+    server = Server(ldap_host, port=ldap_port, get_info=ALL) 
     try:
         conn = Connection(server, user=ldap_user, password=ldap_password, auto_bind=True)
     except LDAPBindError as e:

@@ -54,7 +54,9 @@
 sudo nano /etc/systemd/resolved.conf
 ```
 Отредактируйте параметр `DNS` в разделе `[Resolve]`
+
 <img src="images/resolve-section.png" width="500">
+
 ```
 DNS=1.1.1.1 1.0.0.1 
 ```
