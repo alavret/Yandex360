@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
 
     ldap_host = os.environ.get('LDAP_HOST')
-    ldap_port = os.environ.get('LDAP_PORT')
+    ldap_port = int(os.environ.get('LDAP_PORT'))
     ldap_user = os.environ.get('LDAP_USER')
     ldap_password = os.environ.get('LDAP_PASSWORD')
     ldap_filter = os.environ.get('SEARCH_FILTER')
