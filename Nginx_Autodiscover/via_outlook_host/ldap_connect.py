@@ -20,6 +20,7 @@ if __name__ == "__main__":
     ldap_user = os.environ.get('LDAP_USER')
     ldap_password = os.environ.get('LDAP_PASSWORD')
     ldap_filter = os.environ.get('SEARCH_FILTER')
+    ldap_base_dn = os.environ.get('LDAP_BASE_DN')
     attrib_list = list(os.environ.get('ATTRIB_LIST').split(','))
     log_file = os.environ.get('LOG_FILE')
     max_lines = int(os.environ.get('LOG_MAX_LINES'))
@@ -35,7 +36,7 @@ if __name__ == "__main__":
         logger.log(f'Can not connect to LDAP - "automatic bind not successful - invalidCredentials". Exit.')
         exit(1)
             
-    conn.search('OU=Office,dc=yandry,dc=ru', ldap_filter, search_scope=SUBTREE, attributes=attrib_list, get_operational_attributes=True)
+    conn.search(ldap_base_dn, ldap_filter, search_scope=SUBTREE, attributes=attrib_list, get_operational_attributes=True)
     if conn.last_error is not None:
         print(f'Can not connect to LDAP. Exit.')
         logger.log(f'Error - Can not connect to LDAP. Exit.')
