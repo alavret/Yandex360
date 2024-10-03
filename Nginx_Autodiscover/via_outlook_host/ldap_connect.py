@@ -26,9 +26,9 @@ if __name__ == "__main__":
     logger = CycleLogger(file_name=log_file, max_lines=max_lines)
     logger.log('Start')
 
-    #server = server = Server('ldap_host', get_info=ALL)    
+    server = Server(ldap_host, port=3268, get_info=ALL) 
     try:
-        conn = Connection(ldap_host, user=ldap_user, password=ldap_password, auto_bind=True)
+        conn = Connection(server, user=ldap_user, password=ldap_password, auto_bind=True)
     except LDAPBindError as e:
         print(f'Can not connect to LDAP - "automatic bind not successful - invalidCredentials". Exit.')
         logger.log(f'Can not connect to LDAP - "automatic bind not successful - invalidCredentials". Exit.')
