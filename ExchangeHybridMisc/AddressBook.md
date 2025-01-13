@@ -19,7 +19,7 @@
 Файл конфигурации утилиты SCIM располагается по адресу `C:\ProgramData\Yandex\YandexADSCIM\AD_Users.config`. Пример конфигурации может выглядеть таким образом (блок, описывающий репликацию внешних контактов):
 ```
 EnableContacts = True
-ContactsFilter = (memberOf=CN=Yandex360Contacts,OU=Groups,OU=Office,DC=domain,DC=tld)
+ContactsFilter =  (|(memberOf=CN=Yandex360Contacts,OU=Groups,OU=Office,DC=domain,DC=tld)(msExchRecipientDisplayType=1)(msExchRecipientDisplayType=3))
 
 PropertyContactFirstName = extensionAttribute4
 PropertyContactLastName = displayName
@@ -32,7 +32,7 @@ PropertyContactMobile = mobile
 PropertyContactAddress2 = l
 ```
 #### Пояснения
-- LDAP фльтр может быть любым. В данном случае, используется запрос, позволяющий реплицировать пользователей определённой группы.
+- LDAP фльтр может быть любым. В данном случае, используется запрос, позволяющий реплицировать пользователей определённой группы, плюс информацию о группах рассылки Exchange (msExchRecipientDisplayType=1) и динамических группах рассылки Exchange (msExchRecipientDisplayType=3).
 - `PropertyContactLastName = displayName`. В сервисах Яндекс 360 для отображения полного имени пользователя используется определённая логика объединения полей контактной информации (при этом такая логика может отличаться для разных сервисов Яндекс 360). Чтобы не зависеть от этой логики и реализовать корпоративный стандарт именования пользователей, предлагается в один из атрибутов (`PropertyContactFirstName`, `PropertyContactMiddleName`, `PropertyContactLastName`) передать атрибут `displayName` из локальной Active Directory. В данном примере используется атрибут `PropertyContactLastName`.
 - строка `PropertyContactFirstName = extensionAttribute4` нужна для того, чтобы заполнить пустым значением атрибут `PropertyContactFirstName`. Если просто закомментировать эту строку, SCIM утилита автоматически начнёт реплицировать в этот атрибут значение поля `givenName` учетной записи в локальной AD.
 - `PropertyContactDepartment = department` - обратите внимание, что для внешних контактов есть возможность отреплицировать значение атрибута `Department`, такая возможность отсутствует для учётных записей, которые реплицируются как обычные пользователи в Яндекс 360.
@@ -43,4 +43,18 @@ PropertyContactAddress2 = l
 >PropertyContactMiddleName = middleName
 >PropertyContactLastName = sn
 >```
->а затем было принято решение использовать схему с `displayName` только в один атрибут, может произойти ситуация, когда после новой репликации один из атрибутов `PropertyContactFirstName`, `PropertyContactMiddleName`, `PropertyContactLastName` сохранит своё старое значения, хотя вы в настройках SCIM настроили передачу в этот атрибут поля в AD с пустым значением (например, `extensionAttribute4`). В таком случае, необходимо в этот атрибут (`extensionAttribute4`) записать один пробел, так как система в некоторых случаях не принимает к изменению поле, в котором нет значения (пустая строка). 
+>а затем было принято решение использовать схему с `displayName` только в один атрибут
+>```
+>PropertyContactFirstName = extensionAttribute4
+>PropertyContactLastName = displayName
+>```
+>может произойти ситуация, когда после новой репликации один из атрибутов `PropertyContactFirstName`, `PropertyContactMiddleName`, `PropertyContactLastName` сохранит своё старое значения, хотя вы в настройках SCIM настроили передачу в этот атрибут поля в AD с пустым значением (например, `extensionAttribute4`). В таком случае, необходимо в этот атрибут (`extensionAttribute4`) записать один пробел, так как система в некоторых случаях не принимает к изменению поле, в котором нет значения (пустая строка). 
+>[!IMPORTANT]
+> В качестве напоминания. При реализации гибрида Яндекс 360 и локального почтового сервера (например, Exchange), когда MX домена пользователя ли группы смотрит на землю, все письма, на этот домен технически уходят на соответствующий MX.
+> Например, у группы адрес `group1@contoso.com`. Этот домен добавлен в организацию Яндекс 360, но его MX смотрит на локальный Exchange. При отправке польователем Яндекс 360 письма на эту группу оно уйдёт в локальный Exchange, там эта группа будет раскрыта (извлечены её члены) и уже Exchange будет самостоятельно рассылать письма всем раскрытым членам этой группы. 
+В Web интерфейсе контакты списка `Внешние контакты` появятся в списке `Общие контакты`.
+## Реализация в Outlook
+Для возможности синхронизации контактов в Outlook необходимо установить addon [Яндекс Коннектор для Microsoft Outlook](https://yandex.ru/support/yandex-360/business/calendar/ru/plug-in).
+После аутнетификации в Коннкторе он автоматически будет синхронизировать как календарную информацию, так и контактные данные, в том числе адресную книгу `Внешние контакты` (настройки можно помениять).
+<img src="images/contacts_003.png" width="700">
+<img src="images/contacts_004.png" width="700">
