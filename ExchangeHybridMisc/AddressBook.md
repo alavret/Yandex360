@@ -56,5 +56,6 @@ PropertyContactAddress2 = l
 ## Реализация в Outlook
 Для возможности синхронизации контактов в Outlook необходимо установить addon [Яндекс Коннектор для Microsoft Outlook](https://yandex.ru/support/yandex-360/business/calendar/ru/plug-in).
 После аутентификации в Коннекторе он автоматически будет синхронизировать как календарную информацию, так и контактные данные, в том числе адресную книгу `Внешние контакты` (настройки можно помениять).
-<img src="images/contacts_003.png" width="700">
+<img src="images/contacts_003.png" width="500">
+и в интерфейсе адресной книги:
 <img src="images/contacts_004.png" width="700">
