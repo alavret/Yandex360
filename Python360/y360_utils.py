@@ -300,6 +300,8 @@ def export_unused_deps_to_file():
 
 def update_deps_from_file():
     file_data = read_deps_file('DEPS_FILE_NAME')
+    if not file_data:
+        return
     api_data = generate_deps_list_from_api()
     deps_to_delete = []
     for api in api_data:
