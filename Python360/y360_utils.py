@@ -11,11 +11,12 @@ def clear_dep_info_for_users():
     print('Done.')
     print('Clear link between departments and users...')
     for user in users:
-        organization.patch_user_info(
-                        uid=user.get("id"),
-                        user_data={
-                            "departmentId": 1,
-                        })
+        if user.get("departmentId") != 1:
+            organization.patch_user_info(
+                            uid=user.get("id"),
+                            user_data={
+                                "departmentId": 1,
+                            })
     print('Done.')
     return
 
@@ -97,7 +98,7 @@ def prepare_deps_list_from_raw_data(raw_data):
             if item['prev'] == 'All':
                 item['path'] = item['current']
             else:
-                item['path'] = f'{item['prev']};{item['current']}'
+                item['path'] = f'{item["prev"]};{item["current"]}'
     # Добавление в 360
     return final_list
 
@@ -194,7 +195,7 @@ def generate_deleted_deps():
             if file['path'] == api['path']:
                 found = True
                 deps_to_delete.append(api)
-            elif api['path'].startswith(f'{file['path']};'):
+            elif api['path'].startswith(f'{file["path"]};'):
                 found = True
                 deps_to_delete.append(api)
         if not found:
@@ -246,7 +247,7 @@ def generate_deps_list_from_api():
         if prevId > 0:
             while not prevId == 1:
                 d = next(i for i in all_deps_from_api if i['id'] == prevId)
-                path = f'{d['name'].strip()};{path}'
+                path = f'{d["name"].strip()};{path}'
                 prevId = d['parentId']
             element = {'id':item['id'], 'parentId':item['parentId'], 'path':path}
             all_deps.append(element)
@@ -269,7 +270,7 @@ def write_deps_to_file(os_env_file_name, deps_list):
     else:        
         with open(file_name_random, 'w') as file:
             for item in deps_list:
-                file.write(f'{item['id']};{item['path']}\n')
+                file.write(f'{item["id"]};{item["path"]}\n')
         print(f'Data uploaded to {file_name_random} file.')
 
 
@@ -284,7 +285,7 @@ def generate_unused_deps():
             if file['path'] == api['path']:
                 found = True
                 break
-            elif file['path'].startswith(f'{api['path']};'):
+            elif file['path'].startswith(f'{api["path"]};'):
                 found = True
                 break
         if not found:

@@ -41,14 +41,18 @@ def get_ldap_users(file=False):
                 f.write("mail;department\n")
                 for item in conn.entries:
                         if len(item['mail']) > 0:
-                            f.write(f"{item['mail']};{item['department']}\n")
+                            if item['department'] is not None:
+                                department = item['department'].value
+                            else:
+                                department = ''
+                            f.write(f"{item['mail']};{department}\n")
         
         for item in conn.entries:
             if len(item['mail']) > 0:
-                users[item['mail']] = item['department']
+                users[item['mail'].value] = item['department'].value
 
     except Exception as e:
-        saveToLog(message="{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}", status='Error', console=console)
+        saveToLog(message=f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}", status='Error', console=console)
     
     return users
 
@@ -64,7 +68,7 @@ def get_file_users():
                     mail, department = line.split(";")
                     users[mail.strip()] = department.strip()
     except Exception as e:
-        saveToLog(message="{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}", status='Error', console=console)
+        saveToLog(message=f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}", status='Error', console=console)
     
     return users
 
@@ -79,26 +83,48 @@ def generate_deps_list_from_api():
 
     return all_deps
 
+def add_new_deps_to_y360(new_deps):
+    for item in new_deps:
+        department_info = {
+                    "name": item,
+                    "parentId": 1
+                }
+        saveToLog(message=f'Adding department {item} to Y360', status='Info', console=console)
+        organization.post_create_department(department_info)
+    new_deps = generate_deps_list_from_api()
+    return new_deps
+
 def compare_with_y360():    
     users_org = {}
     users_id = {}
 
     #onprem_users = get_file_users()
-    onprem_users = get_ldap_users
+    onprem_users = get_ldap_users()
     if not onprem_users:
         saveToLog(message=f'List of local users is empty. Exit.', status='Warning', console=console)
         return
     else:
         saveToLog(message=f'Got list of local users. Total count: {len(onprem_users)}' , status='Info', console=console)
     
-        
-
+    onprem_deps =  set(onprem_users.values())
+    saveToLog(message=f'Got list of local departments. Total count: {len(onprem_deps)}' , status='Info', console=console)
+    
     deps = generate_deps_list_from_api()
     if not deps:
         saveToLog(message=f'List of Y360 departments is empty. Exit.', status='Warning', console=console)
         return
     else:
         saveToLog(message=f'Got list of Y360 departments. Total count: {len(deps)}' , status='Info', console=console)
+
+    set_deps = set(deps.values())
+    diff_set = onprem_deps.difference(set_deps)
+    if diff_set:
+        saveToLog(message=f'List of local departments is not equal to Y360 departments. Add new departments.', status='Warning', console=console)
+        return
+    else:
+        saveToLog(message=f'List of local departments is equal to Y360 departments.', status='Info', console=console)
+
+    deps = add_new_deps_to_y360(diff_set)
 
     for user in organization.get_all_users():
         users_org[user['email']] = user['departmentId']
@@ -112,7 +138,8 @@ def compare_with_y360():
 
     try:
         for email in users_org.keys():
-            if email in onprem_users:    
+            if email in onprem_users: 
+                print(f"{email} - {onprem_users[email]}")   
                 if not (len(onprem_users[email].strip()) == 0 or onprem_users[email].strip() =='[]') :
                     if onprem_users[email].strip() != deps[users_org[email]]:
                         new_deps_id = list(deps.keys())[list(deps.values()).index(onprem_users[email].strip())]
@@ -131,7 +158,7 @@ def compare_with_y360():
                                     "departmentId": 1,
                                 })
     except Exception as e:
-        saveToLog(message="{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}", status='Error', console=console)
+        saveToLog(message=f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}", status='Error', console=console)
     
     return
                 
