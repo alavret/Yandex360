@@ -107,7 +107,11 @@ def compare_with_y360():
         saveToLog(message=f'Got list of local users. Total count: {len(onprem_users)}' , status='Info', console=console)
     
     onprem_deps =  set(onprem_users.values())
-    saveToLog(message=f'Got list of local departments. Total count: {len(onprem_deps)}' , status='Info', console=console)
+    if not onprem_deps:
+        saveToLog(message=f'List of local departments is empty. Exit.', status='Warning', console=console)
+        return
+    else:
+        saveToLog(message=f'Got list of local departments. Total count: {len(onprem_deps)}' , status='Info', console=console)
     
     deps = generate_deps_list_from_api()
     if not deps:
