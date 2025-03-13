@@ -7,7 +7,7 @@ from CycLog import CycleLogger
 from lib.y360_api.api_script import API360
 
 
-def get_ldap_users(file=False):
+def get_ldap_users():
 
     set_config_parameter('DEFAULT_SERVER_ENCODING', 'utf-8')
     set_config_parameter('ADDITIONAL_SERVER_ENCODINGS', 'koi8-r')
@@ -17,7 +17,9 @@ def get_ldap_users(file=False):
     ldap_port = int(os.environ.get('LDAP_PORT'))
     ldap_user = os.environ.get('LDAP_USER')
     ldap_password = os.environ.get('LDAP_PASSWORD')
-    ldap_filter = os.environ.get('SEARCH_FILTER')
+    ldap_filter = []
+    ldap_filter.append(os.environ.get('SEARCH_FILTER_1'))
+    ldap_filter.append(os.environ.get('SEARCH_FILTER_2'))
     ldap_base_dn = os.environ.get('LDAP_BASE_DN')
     attrib_list = list(os.environ.get('ATTRIB_LIST').split(','))
     out_file = os.environ.get('OUT_FILE')
@@ -30,31 +32,35 @@ def get_ldap_users(file=False):
         saveToLog(message=f'Can not connect to LDAP - "automatic bind not successful - invalidCredentials". Exit.', status='Error', console=console)
         return {}
             
-    conn.search(ldap_base_dn, ldap_filter, search_scope=SUBTREE, attributes=attrib_list, get_operational_attributes=True)
-    if conn.last_error is not None:
-        saveToLog(message=f'Can not connect to LDAP. Exit.', status='Error', console=console)
-        return {}
+    all_users = {}
+    for each_filter in ldap_filter:
+        users = {}
+        conn.search(ldap_base_dn, each_filter, search_scope=SUBTREE, attributes=attrib_list, get_operational_attributes=True)
+        if conn.last_error is not None:
+            saveToLog(message=f'Can not connect to LDAP. Exit.', status='Error', console=console)
+            return {}
 
-    try:
-        if file:
-            with open(out_file, "w", encoding="utf-8") as f:
-                f.write("mail;department\n")
-                for item in conn.entries:
-                        if len(item['mail']) > 0:
-                            if item['department'] is not None:
-                                department = item['department'].value
-                            else:
-                                department = ''
-                            f.write(f"{item['mail']};{department}\n")
+        try:            
+            for item in conn.entries:
+                if len(item['mail']) > 0:
+                    if item['department'] is not None:
+                        department = item['department'].value
+                    else:
+                        department = ''
+                    users[item['mail'].value] = department
+            all_users.update(users)
+
+        except Exception as e:
+            saveToLog(message=f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}", status='Error', console=console)
+            return {}
         
-        for item in conn.entries:
-            if len(item['mail']) > 0:
-                users[item['mail'].value] = item['department'].value
+    if out_file:
+        with open(out_file, "w", encoding="utf-8") as f:
+            f.write("mail;department\n")
+            for item in all_users:
+                f.write(f"{item['mail']};{department}\n")
 
-    except Exception as e:
-        saveToLog(message=f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}", status='Error', console=console)
-    
-    return users
+    return all_users
 
 def get_file_users():
 
@@ -90,7 +96,8 @@ def add_new_deps_to_y360(new_deps):
                     "parentId": 1
                 }
         saveToLog(message=f'Adding department {item} to Y360', status='Info', console=console)
-        organization.post_create_department(department_info)
+        if not dry_run:
+            organization.post_create_department(department_info)
     new_deps = generate_deps_list_from_api()
     return new_deps
 
@@ -106,7 +113,8 @@ def compare_with_y360():
     else:
         saveToLog(message=f'Got list of local users. Total count: {len(onprem_users)}' , status='Info', console=console)
     
-    onprem_deps =  set(onprem_users.values())
+    temp_deps = {k: v for k, v in onprem_users.items() if v}
+    onprem_deps =  set(temp_deps.values())
     if not onprem_deps:
         saveToLog(message=f'List of local departments is empty. Exit.', status='Warning', console=console)
         return
@@ -120,6 +128,7 @@ def compare_with_y360():
     else:
         saveToLog(message=f'Got list of Y360 departments. Total count: {len(deps)}' , status='Info', console=console)
 
+    
     set_deps = set(deps.values())
     diff_set = onprem_deps.difference(set_deps)
     if diff_set:
@@ -148,19 +157,21 @@ def compare_with_y360():
                     if onprem_users[email].strip() != deps[users_org[email]]:
                         new_deps_id = list(deps.keys())[list(deps.values()).index(onprem_users[email].strip())]
                         saveToLog(message=f'Try to change department of {email} user from _ {deps[users_org[email]]} _ to _ {onprem_users[email]} _', status='Info', console=console)
-                        organization.patch_user_info(
-                            uid = users_id[email],
-                            user_data={
-                                "departmentId": new_deps_id,
-                            })
+                        if not dry_run:
+                            organization.patch_user_info(
+                                uid = users_id[email],
+                                user_data={
+                                    "departmentId": new_deps_id,
+                                })
                 else:
                     if users_org[email] != 1:
                         saveToLog(message=f'Try to change department of {email} user from _ {deps[users_org[email]]} _ to _ All _', status='Info', console=console)
-                        organization.patch_user_info(
-                                uid = users_id[email],
-                                user_data={
-                                    "departmentId": 1,
-                                })
+                        if not dry_run:
+                            organization.patch_user_info(
+                                    uid = users_id[email],
+                                    user_data={
+                                        "departmentId": 1,
+                                    })
     except Exception as e:
         saveToLog(message=f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}", status='Error', console=console)
     
@@ -184,7 +195,11 @@ if __name__ == "__main__":
     max_lines = int(os.environ.get('LOG_MAX_LINES'))
     console = bool(os.environ.get('COPY_LOG_TO_CONSOLE'))
     logger = CycleLogger(file_name=log_file, max_lines=max_lines)
-    saveToLog(status='Info',message ='---------------Start-----------------', console=console)
+    dry_run = bool(os.environ.get('DRY_RUN'))
+
+    saveToLog(status='Info',message =       '---------------Start-----------------', console=console)
+    if dry_run:
+        saveToLog(status='Warning',message ='- Режим тестового прогона включен (DRY_RUN = True)! Изменеия не сохраняются! -', console=console)
 
     compare_with_y360()
 

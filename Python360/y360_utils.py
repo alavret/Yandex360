@@ -253,6 +253,29 @@ def generate_deps_list_from_api():
             all_deps.append(element)
     return all_deps
 
+def generate_deps_list_from_api_and_count_users():
+    users = organization.get_all_users()
+    if not users:
+        return []
+    all_deps_from_api = organization.get_departments_list()
+    if len(all_deps_from_api) == 1:
+        #print('There are no departments in organozation! Exit.')
+        return []
+    all_deps = []
+    for item in all_deps_from_api:        
+        path = item['name'].strip()
+        users_count = sum( user['departmentId'] == item['id'] for user in users)
+        prevId = item['parentId']
+        if prevId > 0:
+            while not prevId == 1:
+                users_count += sum( user['departmentId'] == prevId for user in users)
+                d = next(i for i in all_deps_from_api if i['id'] == prevId)
+                path = f'{d["name"].strip()};{path}'
+                prevId = d['parentId']
+            element = {'id':item['id'], 'parentId':item['parentId'], 'path':path, 'users_count':users_count}
+            all_deps.append(element)
+    return all_deps
+
 
 def load_dep_info_to_file():
     all_deps = generate_deps_list_from_api()
@@ -293,6 +316,16 @@ def generate_unused_deps():
                 deps_to_delete.append(api)
     return deps_to_delete
 
+def export_empty_deps_to_file():
+
+    api_deps = generate_deps_list_from_api_and_count_users()
+    if not api_deps:
+       print(f'No deps were returned from Y360.') 
+       return
+
+    deps_to_delete = list( l for l in api_deps if l['users_count'] == 0 )
+    write_deps_to_file('DEPS_UNUSED_FILE', deps_to_delete) 
+    return 
 
 def export_unused_deps_to_file():
     all_deps = generate_unused_deps()
@@ -328,9 +361,10 @@ def main_menu():
         print("1. Delete all departments and create them from file.")
         print("2. Update departments from file.")
         print("3. Export existing departments to file.")
-        print("4. Export unused departments to file.")
-        print("5. Delete unused departments.")
-        print("6. Delete all departments.")
+        print("4. Export unused (not in initial file) departments to file.")
+        print("5. Export empty (without users) departments to file.")
+        print("6. Delete unused departments.")
+        print("7. Delete all departments.")
         print("0. Exit")
 
         choice = input("Enter your choice (0-6): ")
@@ -345,10 +379,12 @@ def main_menu():
         elif choice == "3":
             load_dep_info_to_file()
         elif choice == "4":
-            export_unused_deps_to_file()        
+            export_unused_deps_to_file() 
         elif choice == "5":
-            delete_selected_deps_entry()
+            export_empty_deps_to_file()        
         elif choice == "6":
+            delete_selected_deps_entry()
+        elif choice == "7":
             del_all_deps()
         else:
             print("Invalid choice. Please try again.")
