@@ -42,12 +42,12 @@ def get_ldap_users():
 
         try:            
             for item in conn.entries:
-                if len(item['mail']) > 0:
+                if len(item['mail']) > 0 and item['mail'] is not None:
                     if item['department'] is not None:
                         department = item['department'].value
                     else:
                         department = ''
-                    users[item['mail'].value] = department
+                    users[item['mail'].value] = department.strip()
             all_users.update(users)
 
         except Exception as e:
@@ -133,7 +133,9 @@ def compare_with_y360():
     diff_set = onprem_deps.difference(set_deps)
     if diff_set:
         saveToLog(message=f'List of local departments is not equal to Y360 departments. Add new departments.', status='Warning', console=console)
-        return
+        for dep in diff_set:
+            saveToLog(message=f'Deps for adding to Y360 - {dep}', status='Info', console=console)
+        #return
     else:
         saveToLog(message=f'List of local departments is equal to Y360 departments.', status='Info', console=console)
 
