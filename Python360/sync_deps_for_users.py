@@ -17,10 +17,10 @@ def get_ldap_users():
     ldap_port = int(os.environ.get('LDAP_PORT'))
     ldap_user = os.environ.get('LDAP_USER')
     ldap_password = os.environ.get('LDAP_PASSWORD')
-    ldap_filter = []
-    ldap_filter.append(os.environ.get('SEARCH_FILTER_1'))
-    ldap_filter.append(os.environ.get('SEARCH_FILTER_2'))
-    ldap_base_dn = os.environ.get('LDAP_BASE_DN')
+    ldap_search = []
+    ldap_search.append([os.environ.get('LDAP_BASE_DN_1'), os.environ.get('SEARCH_FILTER_1')])
+    ldap_search.append([os.environ.get('LDAP_BASE_DN_2'), os.environ.get('SEARCH_FILTER_2')])
+
     attrib_list = list(os.environ.get('ATTRIB_LIST').split(','))
     out_file = os.environ.get('OUT_FILE')
 
@@ -33,9 +33,9 @@ def get_ldap_users():
         return {}
             
     all_users = {}
-    for each_filter in ldap_filter:
+    for each_filter in ldap_search:
         users = {}
-        conn.search(ldap_base_dn, each_filter, search_scope=SUBTREE, attributes=attrib_list, get_operational_attributes=True)
+        conn.search(each_filter[0], each_filter[1], search_scope=SUBTREE, attributes=attrib_list, get_operational_attributes=True)
         if conn.last_error is not None:
             saveToLog(message=f'Can not connect to LDAP. Exit.', status='Error', console=console)
             return {}
