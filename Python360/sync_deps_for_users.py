@@ -42,8 +42,8 @@ def get_ldap_users():
 
         try:            
             for item in conn.entries:
-                if len(item['mail']) > 0 and item['mail'] is not None:
-                    if item['department'] is not None:
+                if len(item['mail']) > 0 and item['mail'].value is not None:
+                    if item['department'].value is not None:
                         department = item['department'].value
                     else:
                         department = ''
@@ -154,7 +154,7 @@ def compare_with_y360():
     try:
         for email in users_org.keys():
             if email in onprem_users: 
-                print(f"{email} - {onprem_users[email]}")   
+                #print(f"{email} - {onprem_users[email]}")   
                 if not (len(onprem_users[email].strip()) == 0 or onprem_users[email].strip() =='[]') :
                     if onprem_users[email].strip() != deps[users_org[email]]:
                         new_deps_id = list(deps.keys())[list(deps.values()).index(onprem_users[email].strip())]
