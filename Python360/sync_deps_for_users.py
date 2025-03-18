@@ -44,10 +44,13 @@ def get_ldap_users():
             for item in conn.entries:
                 if len(item['mail']) > 0 and item['mail'].value is not None:
                     if item['department'].value is not None:
-                        department = item['department'].value
+                        if item['department'].value.strip() != '0':
+                            department = item['department'].value
+                        else:
+                            department = ''
                     else:
                         department = ''
-                    users[item['mail'].value] = department.strip()
+                    users[item['mail'].value.lower()] = department.strip()
             all_users.update(users)
 
         except Exception as e:
@@ -57,8 +60,8 @@ def get_ldap_users():
     if out_file:
         with open(out_file, "w", encoding="utf-8") as f:
             f.write("mail;department\n")
-            for item in all_users:
-                f.write(f"{item['mail']};{department}\n")
+            for k,v in all_users.items():
+                f.write(f"{k};{v}\n")
 
     return all_users
 
@@ -104,6 +107,7 @@ def add_new_deps_to_y360(new_deps):
 def compare_with_y360():    
     users_org = {}
     users_id = {}
+    users_aliases = []
 
     #onprem_users = get_file_users()
     onprem_users = get_ldap_users()
@@ -132,18 +136,28 @@ def compare_with_y360():
     set_deps = set(deps.values())
     diff_set = onprem_deps.difference(set_deps)
     if diff_set:
-        saveToLog(message=f'List of local departments is not equal to Y360 departments. Add new departments.', status='Warning', console=console)
+        #saveToLog(message=f'List of local departments is not equal to Y360 departments. Add new departments.', status='Warning', console=console)
         for dep in diff_set:
-            saveToLog(message=f'Deps for adding to Y360 - {dep}', status='Info', console=console)
+            saveToLog(message=f'Dep for adding to Y360 - {dep}', status='Info', console=console)
         #return
     else:
-        saveToLog(message=f'List of local departments is equal to Y360 departments.', status='Info', console=console)
+        saveToLog(message=f'No deps to add from local to Y360.', status='Info', console=console)
+
+    diff_set2 = set_deps.difference(onprem_deps)
+    if diff_set2:
+        #saveToLog(message=f'List of local departments is not equal to Y360 departments. Add new departments.', status='Warning', console=console)
+        for dep in diff_set2:
+            saveToLog(message=f'Dep in Y360 that not exist in local catalg - {dep}', status='Info', console=console)
+        #return
+    else:
+        saveToLog(message=f'All deps in Y360 exist in local catalog', status='Info', console=console)
 
     deps = add_new_deps_to_y360(diff_set)
 
     for user in organization.get_all_users():
         users_org[user['email']] = user['departmentId']
         users_id[user['email']] = user['id']
+        users_aliases[user['email']] = user['aliases']
 
     if not users_org:
         saveToLog(message=f'List of Y360 users is empty. Exit.', status='Warning', console=console)
@@ -151,12 +165,14 @@ def compare_with_y360():
     else:
         saveToLog(message=f'Got list of Y360 users. Total count: {len(users_org)}' , status='Info', console=console)
 
+    missed_emails = []
     try:
         for email in users_org.keys():
             if email in onprem_users: 
                 #print(f"{email} - {onprem_users[email]}")   
                 if not (len(onprem_users[email].strip()) == 0 or onprem_users[email].strip() =='[]') :
                     if onprem_users[email].strip() != deps[users_org[email]]:
+                        #new_deps = (k,v for k,v in deps.items() if v == onprem_users[email].strip())
                         new_deps_id = list(deps.keys())[list(deps.values()).index(onprem_users[email].strip())]
                         saveToLog(message=f'Try to change department of {email} user from _ {deps[users_org[email]]} _ to _ {onprem_users[email]} _', status='Info', console=console)
                         if not dry_run:
@@ -174,6 +190,37 @@ def compare_with_y360():
                                     user_data={
                                         "departmentId": 1,
                                     })
+            else:
+                missed_emails.append(email)
+                
+        if missed_emails:
+            for email in missed_emails:
+                saveToLog(message=f'Users not found in local catalog: {email}. Start searching in aliases.', status='Info', console=console)
+                domain = email.split('@')[1]
+                for alias in users_aliases[email]:
+                    search_mail = alias + '@' + domain
+                    if search_mail in users_org:
+                        saveToLog(message=f'Found user in local catalog: {search_mail}. Start changing department.', status='Info', console=console)
+                        if not (len(onprem_users[search_mail].strip()) == 0 or onprem_users[search_mail].strip() =='[]') :
+                            if onprem_users[search_mail].strip() != deps[users_org[email]]:
+                                new_deps_id = list(deps.keys())[list(deps.values()).index(onprem_users[search_mail].strip())]
+                                saveToLog(message=f'Try to change department of {search_mail} user from _ {deps[users_org[email]]} _ to _ {onprem_users[search_mail]} _', status='Info', console=console)
+                                if not dry_run:
+                                    organization.patch_user_info(
+                                        uid = users_id[email],
+                                        user_data={
+                                            "departmentId": new_deps_id,
+                                        })
+                        else:
+                            if users_org[email] != 1:
+                                saveToLog(message=f'Try to change department of {search_mail} user from _ {deps[users_org[email]]} _ to _ All _', status='Info', console=console)
+                                if not dry_run:
+                                    organization.patch_user_info(
+                                            uid = users_id[email],
+                                            user_data={
+                                                "departmentId": 1,
+                                            })
+
     except Exception as e:
         saveToLog(message=f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}", status='Error', console=console)
     
