@@ -107,7 +107,7 @@ def add_new_deps_to_y360(new_deps):
 def compare_with_y360():    
     users_org = {}
     users_id = {}
-    users_aliases = []
+    users_aliases = {}
 
     #onprem_users = get_file_users()
     onprem_users = get_ldap_users()
@@ -195,12 +195,12 @@ def compare_with_y360():
                 
         if missed_emails:
             for email in missed_emails:
-                saveToLog(message=f'Users not found in local catalog: {email}. Start searching in aliases.', status='Info', console=console)
+                #saveToLog(message=f'Users not found in local catalog: {email}. Start searching in aliases.', status='Info', console=console)
                 domain = email.split('@')[1]
                 for alias in users_aliases[email]:
                     search_mail = alias + '@' + domain
-                    if search_mail in users_org:
-                        saveToLog(message=f'Found user in local catalog: {search_mail}. Start changing department.', status='Info', console=console)
+                    if search_mail in onprem_users.keys():
+                        saveToLog(message=f'Found user _ alias _ in local catalog: {search_mail}. Start changing department.', status='Info', console=console)
                         if not (len(onprem_users[search_mail].strip()) == 0 or onprem_users[search_mail].strip() =='[]') :
                             if onprem_users[search_mail].strip() != deps[users_org[email]]:
                                 new_deps_id = list(deps.keys())[list(deps.values()).index(onprem_users[search_mail].strip())]
