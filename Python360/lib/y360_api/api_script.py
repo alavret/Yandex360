@@ -429,16 +429,20 @@ class API360:
     @staticmethod
     def save_file(file_name, data):
         if isinstance(data, List):
-            with open(f"{file_name}.txt", "w", encoding='utf-16') as output:
-                for d in data:
-                    output.write(f"{d}\n")
-        else:
-            with open(f'{file_name}.csv', 'w', encoding='utf-16', newline='') as csv_file:
-                fieldnames = data[0].keys()
-                writer = csv.DictWriter(csv_file, delimiter=',', fieldnames=fieldnames)
-                writer.writeheader()
-                for user in data:
-                    writer.writerow(user)
+            if len(data) > 0:
+                if not isinstance(data[0], dict):
+                    with open(f"{file_name}.txt", "w", encoding='utf-16') as output:
+                        for d in data:
+                            output.write(f"{d}\n")
+                        print(f"Saved {len(data)} items to {file_name}.txt")
+                else:
+                    with open(f'{file_name}.csv', 'w', encoding='utf-16', newline='') as csv_file:
+                        fieldnames = data[0].keys()
+                        writer = csv.DictWriter(csv_file, delimiter=';', fieldnames=fieldnames)
+                        writer.writeheader()
+                        for user in data:
+                            writer.writerow(user)
+                        print(f"Saved {len(data)} users to {file_name}.csv")
 
     def post_user_alias(self):
         pass

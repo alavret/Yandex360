@@ -365,9 +365,10 @@ def main_menu():
         print("5. Export empty (without users) departments to file.")
         print("6. Delete unused departments.")
         print("7. Delete all departments.")
+        print("8. Output all users to file.")
         print("0. Exit")
 
-        choice = input("Enter your choice (0-6): ")
+        choice = input("Enter your choice (0-8): ")
 
         if choice == "0":
             print("Goodbye!")
@@ -386,6 +387,8 @@ def main_menu():
             delete_selected_deps_entry()
         elif choice == "7":
             del_all_deps()
+        elif choice == "8":
+            organization.get_all_users(True)
         else:
             print("Invalid choice. Please try again.")
 
