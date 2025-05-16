@@ -31,10 +31,12 @@
 |2. Update departments from file ([описание](#2-update-departments-from-file)).| Сохраняет текущию структуру подразделений и добавляет новые из файла (**отсутствующие в файле подразделения не удаляются из Я360**) | 
 |3. Export existing departments to file ([описание](#3-export-existing-departments-to-file)).| Сохранение текущей иерархии подразделений в файл (можно использовать для бэкапа) | 
 |4. Export unused (not in initial file) departments to file ([описание](#4-export-unused-not-in-initial-file-departments-to-file)). | Поиск неиспользуемых департаментов в Я360 (в качестве основы для сравнения используется входной файл с актуальным списком подразделений)|
-|5. Export empty (without users) departments to file. ([описание](#6-export-empty-without-users-departments-to-file)).| Поиск в организации Я360  департаметов без пользователей|
-|6. Delete unused departments ([описание](#5-delete-unused-departments)).| Удаление выделенных подразделений из Я360 (используется файл со списком удаляемых подразделений)|
-|7. Delete all departments ([описание](#6-delete-all-departments)).| Удаление всех подразделений из организации Я360|
-|8. Output all users to file ([описание](#6-output-all-users-to-file)).| Выгрзука всех пользователей из организации Я360 в файл|
+|5. Export empty (without users) departments to file. ([описание](#5-export-empty-without-users-departments-to-file)).| Поиск в организации Я360  департаметов без пользователей|
+|6. Delete unused departments ([описание](#6-delete-unused-departments)).| Удаление выделенных подразделений из Я360 (используется файл со списком удаляемых подразделений)|
+|7. Delete all departments ([описание](#7-delete-all-departments)).| Удаление всех подразделений из организации Я360|
+|8. Output all users to file ([описание](#8-output-all-users-to-file)).| Выгрзука всех пользователей из организации Я360 в файл|
+
+https://github.com/alavret/Yandex360/tree/main/Python360#4-export-unused-not-in-initial-file-departments-to-file
 
 ## Подготовка к работе
 
